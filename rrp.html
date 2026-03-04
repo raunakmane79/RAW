@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rawls Research Productivity</title>
+  <meta name="theme-color" content="#000000" />
+
+  <style>
+       .rawls-logo{height:46px;width:auto;object-fit:contain;flex-shrink:0}
+    :root{
+      --rawls-red:#CC0000;
+      --black:#000000;
+      --ink:#101828;
+      --muted:#667085;
+
+      --bg:#F2F4F7;
+      --card:#FFFFFF;
+      --border:rgba(16,24,40,0.12);
+      --shadow:0 14px 38px rgba(16,24,40,0.10);
+      --radius:16px;
+
+      --maxw:1160px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color: var(--ink);
+      background: var(--bg);
+    }
+
+    /* ===== Header (Rawls-style) ===== */
+    .topbar{
+      background: var(--black);
+      color:#fff;
+      position: sticky;
+      top:0;
+      z-index:50;
+      border-bottom: 3px solid var(--rawls-red);
+    }
+
+    .topbar-inner{
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 12px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 14px;
+    }
+
+    .logoWrap{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .logo{
+      width: 52px;
+      height: 36px;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .brandText{
+      min-width: 0;
+      line-height: 1.1;
+    }
+    .brandTitle{
+      font-weight: 900;
+      letter-spacing: 0.2px;
+      font-size: 18px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .brandSub{
+      margin-top: 4px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.72);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+    }
+
+    .headerActions{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+
+    .pillBtn{
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      font-size: 13px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.06);
+      color:#fff;
+      cursor:pointer;
+      white-space: nowrap;
+    }
+    .pillBtn:hover{ background: rgba(255,255,255,0.10); }
+
+    .pillBtn.primary{
+      background: var(--rawls-red);
+      border-color: rgba(204,0,0,0.75);
+    }
+    .pillBtn.primary:hover{ filter: brightness(0.95); }
+
+    /* ===== Page layout ===== */
+    .wrap{
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 22px 16px 36px;
+    }
+
+    .pageTitle{
+      margin: 0;
+      font-size: 34px;
+      letter-spacing: -0.4px;
+      font-weight: 950;
+    }
+    .pageSubtitle{
+      margin: 6px 0 16px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .toolbar{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 10px 0 18px;
+    }
+
+    .refreshBtn{
+      border: none;
+      border-radius: 12px;
+      background: var(--rawls-red);
+      color:#fff;
+      font-weight: 900;
+      padding: 10px 14px;
+      cursor: pointer;
+      box-shadow: 0 10px 22px rgba(204,0,0,0.22);
+    }
+    .refreshBtn:hover{ filter: brightness(0.95); }
+    
+
+    .stamp{
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 800;
+      color: rgba(16,24,40,0.70);
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 22px rgba(16,24,40,0.08);
+      white-space: nowrap;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(340px, 1fr));
+      gap: 16px;
+    }
+    @media (max-width: 1000px){
+      .grid{ grid-template-columns: 1fr; }
+      .headerActions{ display:none; }
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px 16px 14px;
+      overflow: hidden;
+    }
+
+    .cardTitle{
+      margin:0 0 6px;
+      font-size: 16px;
+      font-weight: 950;
+      letter-spacing: -0.1px;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+
+    .tag{
+      font-size: 12px;
+      font-weight: 950;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(16,24,40,0.14);
+      background: #fff;
+      color: rgba(16,24,40,0.72);
+    }
+
+    .cardSub{
+      margin: 0 0 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .chartBox{
+      height: 340px;
+      position: relative;
+    }
+
+    .status{
+      margin-top: 14px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px dashed rgba(16,24,40,0.18);
+      color: rgba(16,24,40,0.65);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .dateFilter{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.dateLabel{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size: 13px;
+  font-weight: 900;
+  color: rgba(16,24,40,0.70);
+  background:#fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 10px;
+  box-shadow: 0 10px 22px rgba(16,24,40,0.08);
+}
+
+.dateInput{
+  border: 1px solid rgba(16,24,40,0.16);
+  border-radius: 10px;
+  padding: 6px 8px;
+  font-weight: 800;
+  color: rgba(16,24,40,0.85);
+  background:#fff;
+}
+
+.dateBtn{
+  border: none;
+  border-radius: 12px;
+  background: var(--rawls-red);
+  color:#fff;
+  font-weight: 900;
+  padding: 10px 12px;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(204,0,0,0.18);
+}
+.dateBtn:hover{ filter: brightness(0.95); }
+
+.dateBtn.ghost{
+  background: rgba(16,24,40,0.06);
+  color: rgba(16,24,40,0.80);
+  border: 1px solid rgba(16,24,40,0.14);
+  box-shadow: 0 10px 22px rgba(16,24,40,0.08);
+}
+.dateBtn.ghost:hover{ background: rgba(16,24,40,0.10); }
+
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="topbar">
+    <div class="topbar-inner">
+
+      <!-- Logo + Branding -->
+      <div class="logoWrap">
+        <a href="https://raunakmane79.github.io/RawlsResearchWeb/"
+           class="rawls-logo-link"
+           aria-label="Go to Rawls Research home">
+          <img class="rawls-logo"
+               src="RawlsRlogo.jpeg"
+               alt="Rawls College of Business logo">
+        </a>
+
+        <div class="brandText">
+          <div class="brandTitle">Rawls College Research</div>
+          <div class="brandSub">
+            Rawls College of Business · Texas Tech University
+          </div>
+        </div>
+      </div>
+
+      <!-- Header Actions -->
+      <div class="headerActions">
+
+        <!-- Home Button -->
+        <a href="index.html" class="pillBtn">Home</a>
+
+        <!-- LinkedIn Icon Button -->
+        <a href="https://www.linkedin.com/showcase/research-rawls-college-of-business/"
+   target="_blank"
+   class="pillBtn"
+   aria-label="Rawls Research on LinkedIn"
+   title="LinkedIn">
+  LinkedIn
+</a>
+      </div>
+
+    </div>
+  </header>
+
+  <main class="wrap">
+    <h1 class="pageTitle">Rawls Research Productivity (UNDER DEVELOPMENT)</h1>
+    <p class="pageSubtitle">Publication counts by area across key categories. (Default date ranges for charts are 2000 until current date.)
+
+</p>
+
+   <div class="toolbar">
+  <button class="refreshBtn" id="refreshBtn">Refresh</button>
+ 
+
+  <!-- ✅ Date filter belongs in the HTML body -->
+  <div class="dateFilter">
+    <label class="dateLabel">From
+      <input type="date" id="dateFrom" class="dateInput">
+    </label>
+
+    <label class="dateLabel">To
+      <input type="date" id="dateTo" class="dateInput">
+    </label>
+
+    <button class="dateBtn" id="applyDate" type="button">Apply</button>
+    <button class="dateBtn ghost" id="clearDate" type="button">Clear</button>
+  </div>
+</div>
+
+
+    <section class="grid">
+      <div class="card">
+        <h2 class="cardTitle"><span class="tag">5*</span> 5* Publications by Area</h2>
+        <p class="cardSub">Count by Area</p>
+        <div class="chartBox"><canvas id="chart5star"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2 class="cardTitle"><span class="tag">5</span> 5 Publications by Area</h2>
+        <p class="cardSub">Count by Area</p>
+        <div class="chartBox"><canvas id="chart5"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2 class="cardTitle"><span class="tag">UTD</span> UTD Publications by Area</h2>
+        <p class="cardSub">Count by Area</p>
+        <div class="chartBox"><canvas id="chartUTD"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2 class="cardTitle"><span class="tag">FT</span> Financial Times Publications by Area</h2>
+        <p class="cardSub">Count by Area</p>
+        <div class="chartBox"><canvas id="chartFT"></canvas></div>
+      </div>
+    </section>
+
+    <div class="status" id="rrpStatus">Loading…</div>
+  </main>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- SheetJS -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <script>
+    // ====== CONFIG ======
+    const EXCEL_FILE = "Database.xlsx";      // <-- your real filename in repo
+    const SHEET_NAME = "14";
+
+
+    // Your requested solid colors (no transparency)
+    const AREA_SOLID_COLORS = {
+      "MANAGEMENT": "#4169E1",   // Royal Blue
+      "MARKETING":  "#CC0000",   // Red
+      "SUPPLYCHAIN":"#228B22",   // Forest Green
+      "ISQS":       "#00A3E0",   // Cyber Blue
+      "FINANCE":    "#003366",   // Deep Navy Blue
+      "ECBE":       "#FFBF00",   // Amber
+      "ACCOUNTING": "#800020"    // Burgundy
+    };
+
+    const FALLBACK_COLOR = "#475467";
+    const charts = {};
+
+    function cleanStr(v){ return (v ?? "").toString().trim(); }
+    function yes(v){ return cleanStr(v).toLowerCase() === "yes"; }
+
+    // Map raw Area text -> category key (controls color)
+   function areaCategoryKey(area){
+  const a = cleanStr(area).toLowerCase();
+
+  // --- Highest priority: combined label should be Supply Chain (Forest Green) ---
+  // Handles: "Marketing & Supply Chain Management", "Marketing and Supply Chain", etc.
+  if (
+    (a.includes("marketing") && a.includes("supply chain")) ||
+    a.includes("marketing & supply chain") ||
+    a.includes("marketing and supply chain")
+  ) {
+    return "SUPPLYCHAIN";
+  }
+
+  // Management
+  if (a === "mgt" || a.includes("management")) return "MANAGEMENT";
+
+  // Finance
+  if (a === "fin" || a.includes("finance")) return "FINANCE";
+
+  // Accounting
+  if (a === "acct" || a.includes("account")) return "ACCOUNTING";
+
+  // Energy commerce
+  if (a.includes("energy") || a.includes("commerce") || a.includes("business economics") || a === "ecbe") return "ECBE";
+
+  // ISQS
+  if (a.includes("isqs") || a.includes("information") || a.includes("quantitative")) return "ISQS";
+
+  // Supply Chain (includes SCM)
+  if (
+    a.includes("supply chain") ||
+    a.includes("supply-chain") ||
+    a.includes("supplychain") ||
+    a.includes("scm")
+  ) return "SUPPLYCHAIN";
+
+  // Marketing (only marketing without supply chain)
+  if (a.includes("marketing")) return "MARKETING";
+
+  return "";
+}
+
+
+    // Wrap long axis labels to stop overlap
+    function wrapLabel(label, maxLineLen = 14){
+      const s = cleanStr(label);
+      if (s.length <= maxLineLen) return s;
+
+      const words = s.split(/\s+/);
+      const lines = [];
+      let line = "";
+
+      for (const w of words){
+        const test = line ? (line + " " + w) : w;
+        if (test.length > maxLineLen){
+          if (line) lines.push(line);
+          line = w;
+        } else {
+          line = test;
+        }
+      }
+      if (line) lines.push(line);
+      return lines;
+    }
+
+    function destroy(key){
+      if (charts[key]) { charts[key].destroy(); delete charts[key]; }
+    }
+
+    function buildBar(canvasId, labels, values, key, labelToColor){
+      const el = document.getElementById(canvasId);
+      if (!el) return;
+
+      destroy(key);
+
+      const bg = labels.map(l => labelToColor[l] || FALLBACK_COLOR);
+
+      charts[key] = new Chart(el, {
+        type: "bar",
+        data: {
+          labels: labels.map(l => wrapLabel(l, 14)),
+          datasets: [{
+            data: values,
+            backgroundColor: bg,   // SOLID fill
+            borderWidth: 0,
+            borderRadius: 10,
+            barThickness: 44,
+            maxBarThickness: 54
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 650, easing: "easeOutQuart" },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              enabled: true,
+              callbacks: {
+                title: (items) => labels[items[0].dataIndex]
+              }
+            }
+          },
+          layout: { padding: { left: 8, right: 8, top: 8, bottom: 0 } },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                autoSkip: false,
+                maxRotation: 0,
+                minRotation: 0,
+                font: { size: 11, weight: "800" },
+                color: "rgba(16,24,40,0.70)"
+              }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: {
+                precision: 0,
+                font: { weight: "800" },
+                color: "rgba(16,24,40,0.60)"
+              },
+              grid: { color: "rgba(16,24,40,0.08)" }
+            }
+          }
+        }
+      });
+    }
+
+    async function loadExcelAndRender(){
+  const status = document.getElementById("rrpStatus");
+
+
+  const fromEl = document.getElementById("dateFrom");
+  const toEl   = document.getElementById("dateTo");
+
+  status.textContent = "Loading…";
+
+  // --- helpers for date parsing/filtering ---
+  function startOfDay(d){
+    const x = new Date(d);
+    x.setHours(0,0,0,0);
+    return x;
+  }
+  function endOfDay(d){
+    const x = new Date(d);
+    x.setHours(23,59,59,999);
+    return x;
+  }
+
+  // Converts Excel serial date (days since 1899-12-30) to JS Date
+  function excelSerialToDate(n){
+    // Excel's day 1 = 1900-01-01; common JS conversion uses 1899-12-30 epoch
+    const epoch = new Date(Date.UTC(1899, 11, 30));
+    const ms = n * 24 * 60 * 60 * 1000;
+    return new Date(epoch.getTime() + ms);
+  }
+
+  // Robust pubdate parsing
+  function parsePubDate(v){
+    if (v === null || v === undefined || v === "") return null;
+
+    // If SheetJS gave a number, it's likely an Excel serial date
+    if (typeof v === "number" && isFinite(v)){
+      const d = excelSerialToDate(v);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    const s = cleanStr(v);
+
+    // Try ISO first
+    // (YYYY-MM-DD or YYYY/MM/DD)
+    const iso = s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
+    if (iso){
+      const y = Number(iso[1]), m = Number(iso[2]) - 1, day = Number(iso[3]);
+      const d = new Date(y, m, day);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    // Try MM/DD/YYYY or M/D/YYYY
+    const us = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (us){
+      const m = Number(us[1]) - 1, day = Number(us[2]), y = Number(us[3]);
+      const d = new Date(y, m, day);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    // Fallback: Date.parse
+    const t = Date.parse(s);
+    if (!Number.isNaN(t)) return new Date(t);
+
+    return null;
+  }
+
+  function getSelectedRange(){
+    const fromVal = fromEl?.value ? new Date(fromEl.value) : null; // date input => YYYY-MM-DD
+    const toVal   = toEl?.value ? new Date(toEl.value) : null;
+
+    const from = fromVal ? startOfDay(fromVal) : null;
+    const to   = toVal ? endOfDay(toVal) : null;
+
+    return { from, to };
+  }
+
+  try{
+    const url = `${EXCEL_FILE}?v=${Date.now()}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Unavailable");
+
+    const buf = await res.arrayBuffer();
+    const wb = XLSX.read(buf, { type: "array" });
+    const sheet = wb.Sheets[SHEET_NAME];
+    if (!sheet) throw new Error("Unavailable");
+
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+    // --- Date filter ---
+    const { from, to } = getSelectedRange();
+
+    const filtered = rows.filter(r => {
+      // If no filter set, keep everything
+      if (!from && !to) return true;
+
+      const d = parsePubDate(r["pubdate"]);
+      if (!d) return false; // if filtering and pubdate missing/unparseable => exclude
+
+      if (from && d < from) return false;
+      if (to && d > to) return false;
+      return true;
+    });
+
+    // Aggregate by displayed Area label
+    const byArea = {};
+    for (const r of filtered){
+      const areaLabel = cleanStr(r["Area"]);
+      if (!areaLabel) continue;
+
+      if (!byArea[areaLabel]) byArea[areaLabel] = { fiveStar:0, five:0, utd:0, ft:0 };
+
+      const ranking = cleanStr(r["Ranking - Updated"]);
+      if (ranking === "5*") byArea[areaLabel].fiveStar++;
+      if (ranking === "5")  byArea[areaLabel].five++;
+
+      if (yes(r["UTD Journal"])) byArea[areaLabel].utd++;
+      if (yes(r["Financial Times Journal"])) byArea[areaLabel].ft++;
+    }
+
+    const areas = Object.keys(byArea).sort((a,b) => {
+      const ta = byArea[a].fiveStar + byArea[a].five + byArea[a].utd + byArea[a].ft;
+      const tb = byArea[b].fiveStar + byArea[b].five + byArea[b].utd + byArea[b].ft;
+      return tb - ta;
+    });
+
+    // Map each displayed area label -> your requested solid color
+    const labelToColor = {};
+    for (const label of areas){
+      const k = areaCategoryKey(label);
+      labelToColor[label] = AREA_SOLID_COLORS[k] || FALLBACK_COLOR;
+    }
+
+    buildBar("chart5star", areas, areas.map(a => byArea[a].fiveStar), "fiveStar", labelToColor);
+    buildBar("chart5",     areas, areas.map(a => byArea[a].five),     "five",     labelToColor);
+    buildBar("chartUTD",   areas, areas.map(a => byArea[a].utd),      "utd",      labelToColor);
+    buildBar("chartFT",    areas, areas.map(a => byArea[a].ft),       "ft",       labelToColor);
+
+   
+ 
+
+    // Status message
+    if (from || to){
+      const fromTxt = from ? from.toLocaleDateString() : "—";
+      const toTxt   = to ? to.toLocaleDateString() : "—";
+      status.textContent = `Showing ${filtered.length} rows (pubdate ${fromTxt} → ${toTxt}).`;
+    } else {
+      status.textContent = `Showing all rows (${rows.length}).`;
+    }
+
+  }catch(e){
+    console.error(e);
+    status.textContent = "Charts are temporarily unavailable. Please try again.";
+  }
+}
+
+
+   // Buttons
+    document.getElementById("applyDate").addEventListener("click", loadExcelAndRender);
+
+document.getElementById("clearDate").addEventListener("click", () => {
+  const fromEl = document.getElementById("dateFrom");
+  const toEl   = document.getElementById("dateTo");
+  if (fromEl) fromEl.value = "";
+  if (toEl) toEl.value = "";
+  loadExcelAndRender();
+});
+
+document.getElementById("refreshBtn").addEventListener("click", loadExcelAndRender);
+
+const refreshTopBtn = document.getElementById("refreshTop");
+if (refreshTopBtn) {
+  refreshTopBtn.addEventListener("click", loadExcelAndRender);
+}
+
+document.addEventListener("DOMContentLoaded", loadExcelAndRender);
+
+  </script>
+</body>
+</html>
