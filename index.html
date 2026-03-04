@@ -2032,15 +2032,16 @@ async function tryLoadViaGoogleSheetCSV(){
 
   try{
     // 👇 paste your published CSV URL here
-    const CSV_URL = "https://docs.google.com/spreadsheets/d/1U0fjrQn7ESe-szSQ8iVA12ZRx_HkTINhm-DNE-L2nd8/edit?usp=sharing";
-
+const CSV_URL =
+  "https://docs.google.com/spreadsheets/d/1U0fjrQn7ESe-szSQ8iVA12ZRx_HkTINhm-DNE-L2nd8/gviz/tq?tqx=out:csv&sheet=14";
     const res = await fetch(CSV_URL, { cache: "no-store" });
     if(!res.ok) throw new Error(`HTTP ${res.status}`);
 
-    const csvText = await res.text();
+   const csvText = await res.text();
 
-    // Convert CSV -> workbook (so you can reuse ingestWorkbook exactly as-is)
-    const workbook = XLSX.read(csvText, { type: "string" });
+if (csvText.trim().startsWith("<!DOCTYPE html") || csvText.includes("<html")) {
+  throw new Error("Fetched HTML instead of CSV. Make sure the sheet is viewable to anyone with the link.");
+}
 
     ingestWorkbook(workbook);               // uses your existing sheet parsing logic
     hideLoadingOverlayWhenReady();          // IMPORTANT: hide overlay on success
