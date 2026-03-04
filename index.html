@@ -2012,29 +2012,17 @@ function ingestWorkbook(workbook) {
   const sheet = workbook.Sheets[sheetName];
   console.log("Using sheet:", sheetName);
 
-  const rows = XLSX.utils.sheet_to_json(sheet, {
-    range: "A2:Q1048576", // start after header
-    header: [
-      "lastname",
-      "firstname",
-      "startDateAtRawls",
-      "endDateAtRawls",
-      "position",
-      "area",
-      "accdate",
-      "pubdate",
-      "year",
-      "articleTitle",
-      "journalName",
-      "ranking",
-      "utdJournal",
-      "ftJournal",
-      "authorRank",
-      "numAuthors",
-      "articleLink"
-    ],
-    defval: ""
-  });
+const rows = XLSX.utils.sheet_to_json(sheet, {
+  range: 1,                 // start after header row (row index 1)
+  header: [
+    "lastname","firstname","startDateAtRawls","endDateAtRawls",
+    "position","area","accdate","pubdate","year","articleTitle",
+    "journalName","ranking","utdJournal","ftJournal",
+    "authorRank","numAuthors","articleLink"
+  ],
+  defval: "",
+  blankrows: false
+});
 
   data = rows.map(r => ({
     lastName: r.lastname,
