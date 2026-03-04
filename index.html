@@ -2026,31 +2026,29 @@ function ingestWorkbook(workbook) {
 
 
 
-async function tryLoadViaGoogleSheetCSV(){
+async function tryLoadViaGoogleSheet(){
   showLoadingOverlay();
   setLoadingMessage("Loading publications…", "Fetching from Google Sheets.");
 
   try{
-    // 👇 paste your published CSV URL here
-const CSV_URL =
-  "https://docs.google.com/spreadsheets/d/1U0fjrQn7ESe-szSQ8iVA12ZRx_HkTINhm-DNE-L2nd8/gviz/tq?tqx=out:csv&sheet=14";
-    const res = await fetch(CSV_URL, { cache: "no-store" });
+
+    const XLSX_URL =
+    "https://docs.google.com/spreadsheets/d/1U0fjrQn7ESe-szSQ8iVA12ZRx_HkTINhm-DNE-L2nd8/export?format=xlsx";
+
+    const res = await fetch(XLSX_URL, { cache: "no-store" });
     if(!res.ok) throw new Error(`HTTP ${res.status}`);
 
-   const csvText = await res.text();
+    const buffer = await res.arrayBuffer();
 
-if (csvText.trim().startsWith("<!DOCTYPE html") || csvText.includes("<html")) {
-  throw new Error("Fetched HTML instead of CSV. Make sure the sheet is viewable to anyone with the link.");
-}
+    const workbook = XLSX.read(buffer, { type:"array" });
 
-    ingestWorkbook(workbook);               // uses your existing sheet parsing logic
-    hideLoadingOverlayWhenReady();          // IMPORTANT: hide overlay on success
-    return;
+    ingestWorkbook(workbook);
+
+    hideLoadingOverlayWhenReady();
 
   }catch(err){
     console.warn(err);
-    showLoadHint("❌ Could not load from Google Sheets. Check Publish-to-web is ON and URL is CSV.");
-    setLoadingMessage("Couldn’t load the database", "Check the Google publish link (CSV) and permissions.");
+    showLoadHint("❌ Could not load from Google Sheets.");
     hideLoadingOverlayWhenReady();
   }
 }
@@ -2164,8 +2162,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (arrow) arrow.textContent = "↓";
   }
 
-   tryLoadViaGoogleSheetCSV();
-});
+tryLoadViaGoogleSheet();});
 showLoadingOverlay();
 setLoadingMessage("Loading publications…", "Please wait while the database loads.");/* ===============================
    TUTORIAL / WALKTHROUGH MODE
