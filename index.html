@@ -1089,7 +1089,7 @@ input[type="checkbox"]{
       <div class="file-input">
         <span>Fix: choose your Excel file here:</span>
         <input type="file" id="dbFile" accept=".xlsx,.xls" />
-        <button class="btn" id="tryFetchBtn" type="button">Try loading Database.xlsx again</button>
+        <button class="btn" id="FetchBtn" type="button"> loading Database.xlsx again</button>
       </div>
     </div>
 
@@ -1465,7 +1465,7 @@ function toggleExportMenu(){
     advancedPanel: document.getElementById("advancedPanel"),
     loadHint: document.getElementById("loadHint"),
     dbFile: document.getElementById("dbFile"),
-    tryFetchBtn: document.getElementById("tryFetchBtn"),
+    FetchBtn: document.getElementById("FetchBtn"),
     currentYes: document.getElementById("currentYes"),
 currentNo: document.getElementById("currentNo"),
     accYearMulti: document.getElementById("accYearMulti"),
@@ -2026,33 +2026,27 @@ setLoadingMessage("Loaded!", "Database is ready.");
 hideLoadingOverlayWhenReady();
 
   async function tryLoadViaFetch(){
-  const candidates = [
-    "Database.xlsx",
-    "database.xlsx",
-    "DatabaseA.xlsx"
-  ];
+  try{
+    const BASE_URL = "https://texastechuniversity-my.sharepoint.com/:x:/g/personal/ramane_ttu_edu/IQByO76vHluRR7EXU9_2KuxRAU12H5yVny3hC-gbGM0sARs?e=S2uURt&download=1";
 
-  for (const name of candidates) {
-    try {
-      const url = new URL(name, window.location.href).toString();
-      console.log("Trying:", url);
+    // cache buster so you always get latest file
+    const url = BASE_URL + `&v=${Date.now()}`;
 
-      const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new Error(`${name} -> HTTP ${res.status}`);
+    const res = await fetch(url, { cache: "no-store", credentials: "include" });
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
 
-      const buf = await res.arrayBuffer();
-      const workbook = XLSX.read(buf, { type:"array" });
-      ingestWorkbook(workbook);
-      console.log("Loaded successfully from:", name);
-      return;
-    } catch (err) {
-      console.warn("Failed:", err.message || err);
-    }
+    const buf = await res.arrayBuffer();
+    const workbook = XLSX.read(buf, { type:"array" });
+    ingestWorkbook(workbook);
+    return;
+  }catch(err){
+    console.warn(err);
+
+    showLoadHint("❌ Could not load from SharePoint. Likely permissions/CORS. Use file picker or add a proxy.");
+    setLoadingMessage("Couldn’t load the database", "Please use the file picker to upload the Excel file.");
+    hideLoadingOverlayWhenReady();
   }
-
-showLoadHint("❌ Could not load the Excel file.");}
-setLoadingMessage("Loading publications…", "Please wait while the database loads.");
-hideLoadingOverlayWhenReady();
+}
 
   function attachListeners(){
     const debounce=(fn,ms=120)=>{ let t; return ()=>{ clearTimeout(t); t=setTimeout(fn,ms); }; };
