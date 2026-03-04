@@ -2056,15 +2056,15 @@ async function tryLoadViaGoogleSheet(){
 
   try{
     // 1) try cache first
-    setLoadingMessage("Loading publications…", "Checking cached database.");
+    setLoadingMessage("Loading publications…", "Please wait while the database loads.");
     let buffer = await getCachedXlsxArrayBuffer(XLSX_URL);
 
     // 2) if no fresh cache, fetch & cache
     if(!buffer){
-      setLoadingMessage("Loading publications…", "Fetching from Google Sheets (updating cache).");
+      setLoadingMessage("Loading publications…", "Please wait while the database loads.");
       buffer = await fetchAndCacheXlsxArrayBuffer(XLSX_URL);
     } else {
-      setLoadingMessage("Loading publications…", "Loaded instantly from cache.");
+      setLoadingMessage("Loading publications…", "Please wait while the database loads.");
     }
 
     const workbook = XLSX.read(buffer, { type:"array" });
@@ -2073,7 +2073,7 @@ async function tryLoadViaGoogleSheet(){
     hideLoadingOverlayWhenReady();
   }catch(err){
     console.warn(err);
-    showLoadHint("❌ Could not load from Google Sheets (cached or live).");
+    showLoadHint("❌ Could not load.");
     hideLoadingOverlayWhenReady();
   }
 }
