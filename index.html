@@ -2054,7 +2054,7 @@ async function tryLoadViaGoogleSheet(){
 }
 
   function attachListeners(){
-    const debounce=(fn,ms=120)=>{ let t; return ()=>{ clearTimeout(t); t=setTimeout(fn,ms); }; };
+    const debounce=(fn,ms=260)=>{ let t; return ()=>{ clearTimeout(t); t=setTimeout(fn,ms); }; };
     const debouncedApply = debounce(applyFilters, 120);
 
     [elements.firstNameSearch, elements.lastNameSearch, elements.keywordSearch, elements.titleSearch, elements.journalSearch]
