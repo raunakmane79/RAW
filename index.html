@@ -1963,7 +1963,9 @@ function excelDateToJS(value) {
 
 function ingestWorkbook(workbook) {
   // ✅ Pull specifically from sheet named "14"
-  const sheetName = workbook.SheetNames.find(n => String(n).trim() === "14");
+  const sheetName =
+  workbook.SheetNames.find(n => String(n).trim() === "14")
+  || workbook.SheetNames[0]; // ✅ fallback for CSV ("Sheet1")
 
   if (!sheetName) {
     showLoadHint(`❌ Sheet named "14" not found. Available: ${workbook.SheetNames.join(", ")}`);
@@ -2024,26 +2026,30 @@ function ingestWorkbook(workbook) {
 
 
 
-async function tryLoadViaFetch(){
+async function tryLoadViaGoogleSheetCSV(){
   showLoadingOverlay();
-  setLoadingMessage("Loading publications…", "Please wait while the database loads.");
+  setLoadingMessage("Loading publications…", "Fetching from Google Sheets.");
 
   try{
-    const BASE_URL = "https://texastechuniversity-my.sharepoint.com/:x:/g/personal/ramane_ttu_edu/IQByO76vHluRR7EXU9_2KuxRAU12H5yVny3hC-gbGM0sARs?e=S2uURt&download=1";
-    const url = BASE_URL + `&v=${Date.now()}`;
+    // 👇 paste your published CSV URL here
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/1-9lQgndPT86LHEvhHbt1nyZpsy_pbeGI6hSVAtky8Po/edit?usp=sharing";
 
-    const res = await fetch(url, { cache: "no-store", credentials: "include" });
+    const res = await fetch(CSV_URL, { cache: "no-store" });
     if(!res.ok) throw new Error(`HTTP ${res.status}`);
 
-    const buf = await res.arrayBuffer();
-    const workbook = XLSX.read(buf, { type:"array" });
-    ingestWorkbook(workbook);
+    const csvText = await res.text();
+
+    // Convert CSV -> workbook (so you can reuse ingestWorkbook exactly as-is)
+    const workbook = XLSX.read(csvText, { type: "string" });
+
+    ingestWorkbook(workbook);               // uses your existing sheet parsing logic
+    hideLoadingOverlayWhenReady();          // IMPORTANT: hide overlay on success
     return;
 
   }catch(err){
     console.warn(err);
-    showLoadHint("❌ Could not load from SharePoint. Likely permissions/CORS. Use file picker or add a proxy.");
-    setLoadingMessage("Couldn’t load the database", "Please use the file picker to upload the Excel file.");
+    showLoadHint("❌ Could not load from Google Sheets. Check Publish-to-web is ON and URL is CSV.");
+    setLoadingMessage("Couldn’t load the database", "Check the Google publish link (CSV) and permissions.");
     hideLoadingOverlayWhenReady();
   }
 }
@@ -2157,7 +2163,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (arrow) arrow.textContent = "↓";
   }
 
-  tryLoadViaFetch();
+   tryLoadViaGoogleSheetCSV();
 });
 showLoadingOverlay();
 setLoadingMessage("Loading publications…", "Please wait while the database loads.");/* ===============================
