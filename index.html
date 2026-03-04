@@ -2022,14 +2022,14 @@ function ingestWorkbook(workbook) {
   elements.loadHint.style.display = "none";
 }
 
-setLoadingMessage("Loaded!", "Database is ready.");
-hideLoadingOverlayWhenReady();
 
-  async function tryLoadViaFetch(){
+
+async function tryLoadViaFetch(){
+  showLoadingOverlay();
+  setLoadingMessage("Loading publications…", "Please wait while the database loads.");
+
   try{
     const BASE_URL = "https://texastechuniversity-my.sharepoint.com/:x:/g/personal/ramane_ttu_edu/IQByO76vHluRR7EXU9_2KuxRAU12H5yVny3hC-gbGM0sARs?e=S2uURt&download=1";
-
-    // cache buster so you always get latest file
     const url = BASE_URL + `&v=${Date.now()}`;
 
     const res = await fetch(url, { cache: "no-store", credentials: "include" });
@@ -2039,9 +2039,9 @@ hideLoadingOverlayWhenReady();
     const workbook = XLSX.read(buf, { type:"array" });
     ingestWorkbook(workbook);
     return;
+
   }catch(err){
     console.warn(err);
-
     showLoadHint("❌ Could not load from SharePoint. Likely permissions/CORS. Use file picker or add a proxy.");
     setLoadingMessage("Couldn’t load the database", "Please use the file picker to upload the Excel file.");
     hideLoadingOverlayWhenReady();
@@ -2145,8 +2145,7 @@ sortState.dir = isDateKey ? "desc" : "asc";
   });
 });
 
-    elements.tryFetchBtn.addEventListener("click", ()=>tryLoadViaFetch());
-  }
+elements.FetchBtn.addEventListener("click", ()=>tryLoadViaFetch());  }
 
 document.addEventListener("DOMContentLoaded", () => {
   attachListeners();
@@ -2160,8 +2159,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   tryLoadViaFetch();
 });
-showLoadingOverlay(); // ✅ add this
-/* ===============================
+showLoadingOverlay();
+setLoadingMessage("Loading publications…", "Please wait while the database loads.");/* ===============================
    TUTORIAL / WALKTHROUGH MODE
 ================================ */
 /* ===============================
