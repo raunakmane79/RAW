@@ -1473,7 +1473,20 @@ currentNo: document.getElementById("currentNo"),
 
 
   };
+// -------- VIRTUAL TABLE --------
+const VROW_HEIGHT = 49;   // row height in px (tweak if needed)
+const VBUFFER = 20;       // extra rows above/below viewport
+let vRows = [];
+let vScrollEl = null;
 
+function initVirtualTable(){
+  vScrollEl = document.querySelector(".table-container");
+  if(!vScrollEl) return;
+
+  vScrollEl.addEventListener("scroll", () => {
+    requestAnimationFrame(renderVirtualSlice);
+  }, { passive: true });
+}
   const multiSelectControls = {};
 
   // ---------- helpers ----------
@@ -1778,62 +1791,86 @@ function tokenMatchOneField(queryToken, candidate, exactMode){
   multiSelectControls.year = buildMultiSelect(elements.yearMulti, data.map(d=>d.year), "All Publication Years");
 }
 
-  function renderTable(rows){
-    currentRows = rows.slice();
-   if(!rows.length){
-  elements.resultsBody.innerHTML = `
-    <tr>
-      <td colspan="17" style="padding:26px;">
-        <div style="
-          border:1px solid rgba(186,12,47,.18);
-          background:rgba(186,12,47,.05);
-          border-radius:14px;
-          padding:16px 18px;
-          color:#3a0b15;
-          font-weight:650;">
+ function renderTable(rows){
+  currentRows = rows.slice();
+  vRows = rows.slice();
+
+  if(!rows.length){
+    elements.resultsBody.innerHTML = `
+      <tr><td colspan="17" style="padding:26px;">
+        <div style="border:1px solid rgba(186,12,47,.18);background:rgba(186,12,47,.05);
+        border-radius:14px;padding:16px 18px;color:#3a0b15;font-weight:650;">
           No results found. Try clearing filters or broadening your search.
         </div>
-      </td>
-    </tr>
+      </td></tr>`;
+    elements.resultsCount.textContent = `Showing 0 results`;
+    return;
+  }
+
+  elements.resultsCount.textContent = `Showing ${rows.length} result${rows.length === 1 ? "" : "s"}`;
+
+  // create top/bottom spacer rows to preserve scroll height
+  elements.resultsBody.innerHTML = `
+    <tr id="vTop"><td colspan="17" style="padding:0;border:0;height:0"></td></tr>
+    <tr id="vBottom"><td colspan="17" style="padding:0;border:0;height:0"></td></tr>
   `;
-  elements.resultsCount.textContent = `Showing 0 results`;
-  return;
+
+  renderVirtualSlice();
 }
 
-    const frag=document.createDocumentFragment();
+function renderVirtualSlice(){
+  if(!vScrollEl) return;
+  const total = vRows.length;
 
-    rows.forEach(r=>{
-      const tr=document.createElement("tr");
-      const url=safeUrl(r.articleLink);
-   tr.innerHTML = `
-  <td>${r.lastName||""}</td>
-  <td>${r.firstName||""}</td>
-  <td>${r.startDateAtRawls||""}</td>
-  <td>${r.endDateAtRawls||""}</td>
-  <td>${r.position||""}</td>
-  <td>${r.area||""}</td>
-  <td>${r.accdate||""}</td>
-  <td>${r.pubdate||""}</td>
-  <td>${r.year||""}</td>
-  <td>${r.articleTitle||""}</td>
-  <td>${r.journalName||""}</td>
-  <td>${r.ranking ? `<span class="badge badge-blue">${r.ranking}</span>` : ""}</td>
-  <td>${r.utdJournal==="Yes" ? `<span class="badge badge-green">Yes</span>` : (r.utdJournal==="No" ? `<span class="badge badge-no">No</span>` : "")}</td>
-  <td>${r.ftJournal==="Yes" ? `<span class="badge badge-green">Yes</span>` : (r.ftJournal==="No" ? `<span class="badge badge-no">No</span>` : "")}</td>
-  <td>${r.authorRank ? `<span class="badge badge-blue">${r.authorRank}</span>` : ""}</td>
-  <td>${r.numAuthors ? `<span class="badge badge-blue">${r.numAuthors}</span>` : ""}</td>
-  <td>${url ? `<a class="link-btn" href="${url}" target="_blank" rel="noopener noreferrer">Open</a>` : `<span class="link-btn disabled">No link</span>`}</td>
-`;
+  const scrollTop = vScrollEl.scrollTop;
+  const viewportH = vScrollEl.clientHeight;
 
-      frag.appendChild(tr);
-    });
+  const start = Math.max(0, Math.floor(scrollTop / VROW_HEIGHT) - VBUFFER);
+  const end   = Math.min(total, Math.ceil((scrollTop + viewportH) / VROW_HEIGHT) + VBUFFER);
 
-    elements.resultsBody.innerHTML = "";
-elements.resultsBody.appendChild(frag);
+  const topH = start * VROW_HEIGHT;
+  const bottomH = (total - end) * VROW_HEIGHT;
 
-elements.resultsCount.textContent = `Showing ${rows.length} result${rows.length === 1 ? "" : "s"}`;
+  const topEl = document.getElementById("vTop");
+  const bottomEl = document.getElementById("vBottom");
+  if(topEl) topEl.style.height = topH + "px";
+  if(bottomEl) bottomEl.style.height = bottomH + "px";
+
+  // remove old rendered slice rows (between vTop and vBottom)
+  // rebuild slice fast
+  const frag = document.createDocumentFragment();
+  for(let i=start; i<end; i++){
+    const r = vRows[i];
+    const tr = document.createElement("tr");
+    const url = safeUrl(r.articleLink);
+    tr.innerHTML = `
+      <td>${r.lastName||""}</td>
+      <td>${r.firstName||""}</td>
+      <td>${r.startDateAtRawls||""}</td>
+      <td>${r.endDateAtRawls||""}</td>
+      <td>${r.position||""}</td>
+      <td>${r.area||""}</td>
+      <td>${r.accdate||""}</td>
+      <td>${r.pubdate||""}</td>
+      <td>${r.year||""}</td>
+      <td>${r.articleTitle||""}</td>
+      <td>${r.journalName||""}</td>
+      <td>${r.ranking ? `<span class="badge badge-blue">${r.ranking}</span>` : ""}</td>
+      <td>${r.utdJournal==="Yes" ? `<span class="badge badge-green">Yes</span>` : (r.utdJournal==="No" ? `<span class="badge badge-no">No</span>` : "")}</td>
+      <td>${r.ftJournal==="Yes" ? `<span class="badge badge-green">Yes</span>` : (r.ftJournal==="No" ? `<span class="badge badge-no">No</span>` : "")}</td>
+      <td>${r.authorRank ? `<span class="badge badge-blue">${r.authorRank}</span>` : ""}</td>
+      <td>${r.numAuthors ? `<span class="badge badge-blue">${r.numAuthors}</span>` : ""}</td>
+      <td>${url ? `<a class="link-btn" href="${url}" target="_blank" rel="noopener noreferrer">Open</a>` : `<span class="link-btn disabled">No link</span>`}</td>
+    `;
+    frag.appendChild(tr);
+  }
+
+  // Insert slice between top and bottom
+  const tbody = elements.resultsBody;
+  // keep only vTop + vBottom
+  while(tbody.children.length > 2) tbody.removeChild(tbody.children[1]);
+  tbody.insertBefore(frag, document.getElementById("vBottom"));
 }
-
  function applyFilters(){
   let firstQ = elements.firstNameSearch.value.trim();
   let lastQ  = elements.lastNameSearch.value.trim();
@@ -2154,6 +2191,8 @@ elements.FetchBtn.addEventListener("click", ()=>tryLoadViaFetch());  }
 
 document.addEventListener("DOMContentLoaded", () => {
   attachListeners();
+  initVirtualTable();
+
 
   const th = document.querySelector('th.sortable[data-sort="accdate"]');
   if (th) {
